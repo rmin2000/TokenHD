@@ -177,6 +177,6 @@ python model_merging/merge.py \
 
 | Argument | Description |
 |---|---|
-| `--merge_method` | `average_merging`, `task_arithmetic`, `ties_merging`, `dare_merging` |
+| `--merge_method` | `average_merging`, `task_arithmetic`, `ties_merging`, `ties_merging_dare` |
 | `--base_model` | Reference backbone for task-vector-based methods |
 | `--models_to_merge` | Comma-separated paths to specialist checkpoints |
