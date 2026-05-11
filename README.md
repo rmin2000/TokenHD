@@ -2,6 +2,34 @@
 
 Code for **TokenHD**, a pipeline for training token-level hallucination detectors in LLMs.
 
+## Pre-trained Models
+
+| Model | HuggingFace | Training Domain |
+|---|---|---|
+| TokenHD-0.6B | [mr233/TokenHD-0.6B](https://huggingface.co/mr233/TokenHD-0.6B) | Mathematics |
+| TokenHD-1.7B | [mr233/TokenHD-1.7B](https://huggingface.co/mr233/TokenHD-1.7B) | Mathematics |
+| TokenHD-4B | [mr233/TokenHD-4B](https://huggingface.co/mr233/TokenHD-4B) | Mathematics |
+| TokenHD-8B | [mr233/TokenHD-8B](https://huggingface.co/mr233/TokenHD-8B) | Mathematics |
+| TokenHD-8B-Mix | [mr233/TokenHD-8B-Mix](https://huggingface.co/mr233/TokenHD-8B-Mix) | Mathematics + Code |
+
+```python
+from transformers import AutoTokenizer, AutoModelForTokenClassification
+import torch
+
+model_id = "mr233/TokenHD-1.7B"
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForTokenClassification.from_pretrained(model_id)
+model.eval()
+
+text = "The capital of France is London."
+inputs = tokenizer(text, return_tensors="pt")
+with torch.no_grad():
+    logits = model(**inputs).logits  # shape: (1, seq_len, 1)
+scores = torch.sigmoid(logits).squeeze(-1).squeeze(0)  # per-token hallucination probability
+```
+
+---
+
 ## Requirements
 
 ```bash
