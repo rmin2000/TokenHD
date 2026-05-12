@@ -88,16 +88,16 @@ num_samples = len(raw_answers)
 print(f"Total samples: {num_samples}, Critics: {len(label_model_list)}")
 
 # --- Learn ensemble weights on a validation subset ---
-if args.weighted and len(label_model_list) > 1:
+if args.weighted and len(label_list_all) > 1:
     val_size = max(1, int(num_samples * args.val_fraction))
     val_indices = list(range(val_size))
     train_indices = list(range(val_size, num_samples))
 
-    val_input = [[per_model_token_labels[m][i] for i in val_indices] for m in range(len(label_model_list))]
+    val_input = [[per_model_token_labels[m][i] for i in val_indices] for m in range(len(label_list_all))]
     val_gt = [per_model_token_labels[0][i] for i in val_indices]  # use first model labels as proxy gt
 
     optimizer = WeightedVectorOptimizer(
-        num_models=len(label_model_list),
+        num_models=len(label_list_all),
         learning_rate=0.01,
         device="cpu",
         weighted_loss=True,
@@ -105,7 +105,7 @@ if args.weighted and len(label_model_list) > 1:
     optimal_weights, _ = optimizer.train(val_input, val_gt, epochs=100, batch_size=64)
     print(f"Learned ensemble weights: {optimal_weights}")
 else:
-    optimal_weights = np.ones(len(label_model_list)) / len(label_model_list)
+    optimal_weights = np.ones(len(label_list_all)) / len(label_list_all)
     train_indices = list(range(num_samples))
     print(f"Using uniform weights: {optimal_weights}")
 

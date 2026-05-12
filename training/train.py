@@ -209,6 +209,7 @@ def train():
     dataset = raw_dataset["train"].shuffle(seed=2345)
 
     tokenizer = AutoTokenizer.from_pretrained(config.model_name, use_fast=True, trust_remote_code=True)
+    tokenizer.padding_side = 'right'
     data_collator = SystemPromptDataCollator(tokenizer=tokenizer, padding=True)
 
     # Tokenization with optional disk cache

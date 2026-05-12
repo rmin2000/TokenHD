@@ -42,8 +42,9 @@ label_model_list = [m.strip() for m in args.annotator_models.split(",")]
 label_list_all = data_preprocess(label_model_list, args.policy_model, args.folder_name, args.data_dir)
 
 np.random.seed(2333)
+perm = np.random.permutation(len(label_list_all[0]))
 for i in range(len(label_list_all)):
-    np.random.shuffle(label_list_all[i])
+    label_list_all[i] = [label_list_all[i][j] for j in perm]
 
 model = AutoModelForTokenClassification.from_pretrained(
     args.model_path, num_labels=1, torch_dtype=torch.bfloat16, device_map="auto"
@@ -83,7 +84,7 @@ for tmp_idx, item in tqdm(enumerate(label_list_all[0])):
         token_ids, token_weights_gt, start_id = token_ensemble(
             raw_answer, new_label_list, valid_count_incorrect, tokenizer, item["correctness"], return_suffix=True
         )
-        if start_id != -1 and max(token_weights_gt[: max(start_id - 2, 0)]) <= 0.9:
+        if start_id > 2 and max(token_weights_gt[:start_id - 2]) <= 0.9:
             continue
     else:
         token_ids, token_weights_gt, start_id = token_ensemble(
@@ -94,19 +95,19 @@ for tmp_idx, item in tqdm(enumerate(label_list_all[0])):
 
     if item["correctness"] in [0, 1] and max(token_weights_gt_hard) == 0:
         cor_flag = True
-        correct_count += 1
         if correct_question_dict.get(problem, 0) >= 4:
             continue
         correct_question_dict[problem] = correct_question_dict.get(problem, 0) + 1
+        correct_count += 1
 
     elif item["correctness"] == -1 and max(token_weights_gt_hard) == 1:
         cor_flag = False
-        incorrect_count += 1
         if extract_answer_from_box(raw_answer) is None and "math" in args.data_dir:
             continue
         if incorrect_question_dict.get(problem, 0) >= 4:
             continue
         incorrect_question_dict[problem] = incorrect_question_dict.get(problem, 0) + 1
+        incorrect_count += 1
     else:
         continue
 
