@@ -296,7 +296,7 @@ def data_preprocess(label_model_list, policy_model, folder_name, save_folder_nam
             for item in load_jsonl(file_path):
                 temp_file_data.append(item)
 
-        if "math" in save_folder_name:
+        if "math" in folder_name:
             temp_file_data = [
                 item
                 for item in temp_file_data

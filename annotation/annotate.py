@@ -19,7 +19,6 @@ Output format (JSONL):
 import os
 import json
 import re
-import copy
 import argparse
 import torch
 
@@ -88,7 +87,7 @@ error_index_list = [i for i, x in enumerate(solution_data) if x["correctness"] =
 
 if args.folder_name in ["gpqa", "olym_phy", "fin_qa"]:
     system_prompt = sci_process_error_prompt
-elif "code" in args.data_dir:
+elif "code" in args.folder_name:
     system_prompt = code_process_error_prompt
 else:
     system_prompt = math_process_error_prompt
