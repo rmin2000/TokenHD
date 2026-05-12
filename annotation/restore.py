@@ -75,7 +75,7 @@ with open(save_data_file, writing_var, encoding="utf-8") as f:
 
         additional_info = {k: v for k, v in item.items() if k != "label_index_list"}
 
-        if all(isinstance(s, list) and len(s) == 0 for s in label_index_list_raw):
+        if all((isinstance(s, list) and len(s) == 0) or s == "No errors!" for s in label_index_list_raw):
             result = {"label_index_list": label_index_list_raw}
             result.update(additional_info)
             f.write(json.dumps(result, ensure_ascii=False) + "\n")

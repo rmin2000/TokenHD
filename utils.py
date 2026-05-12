@@ -273,7 +273,7 @@ def data_preprocess(label_model_list, policy_model, folder_name, save_folder_nam
     for model_name in label_model_list:
         temp_file_data = []
         chunk_file_name_list = glob.glob(
-            f"{save_folder_name}/{policy_model}/{folder_name}/verbal_labeler_{model_name}/restored/chunk*.jsonl"
+            f"{save_folder_name}/{policy_model}/{folder_name}/verbal_labeler_{model_name}/restored/chunk_*.jsonl"
         )
 
         if len(chunk_file_name_list) == 0:

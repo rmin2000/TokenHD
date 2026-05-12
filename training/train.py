@@ -138,7 +138,7 @@ class TokenLevelSoftLabelTrainer(Trainer):
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         outputs = model(
             input_ids=inputs["input_ids"],
-            attention_mask=torch.ones_like(inputs["attention_mask"]),
+            attention_mask=inputs["attention_mask"],
         )
         token_labels = inputs["labels"].to(outputs.logits.device)
         attention_mask = inputs["attention_mask"].to(outputs.logits.device)
@@ -277,6 +277,8 @@ def train():
         problem = item["problem"]
         token_ids = item["token_ids"]
 
+        if len(labels) == 0:
+            continue
         if len([l for l in labels if l > 0.5]) / len(labels) > 0.5:
             continue
         if correctness in [0, 1] and sum(labels[-20:]) != 0:
