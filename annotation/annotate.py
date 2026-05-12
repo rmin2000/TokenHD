@@ -23,7 +23,6 @@ import argparse
 import torch
 
 from openai import OpenAI
-from tqdm import tqdm
 from vllm import LLM, SamplingParams
 from transformers import AutoTokenizer
 
@@ -166,10 +165,10 @@ with open(save_file, writing_var, encoding="utf-8") as f:
             auto_label_list = [out[0].outputs[i].text.strip() for i in range(len(out[0].outputs))]
 
             for i in range(len(auto_label_list)):
-                al = auto_label_list[i]
-                if "</think>" in al:
-                    al = al.split("</think>")[-1].strip()
-                auto_label_list[i] = al
+                label = auto_label_list[i]
+                if "</think>" in label:
+                    label = label.split("</think>")[-1].strip()
+                auto_label_list[i] = label
 
         label_index_list = []
         for auto_label in auto_label_list:

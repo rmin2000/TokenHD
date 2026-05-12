@@ -24,11 +24,13 @@ def mask_input_with_mask_rate(input_tensor: torch.Tensor, mask_rate: float, use_
         original_shape = input_tensor.shape
         input_tensor = input_tensor.flatten()
         num_mask_params = int(len(input_tensor) * mask_rate)
-        # Tensor, shape (1, ), find the num_mask_params-th smallest magnitude element of all the parameters in the model
-        kth_values, _ = input_tensor.abs().kthvalue(k=num_mask_params, dim=0, keepdim=True)
-        # Tensor, shape (num_total_params, ), where True is for parameters that we want to perform mask
-        mask = input_tensor.abs() <= kth_values
-        masked_input_tensor = input_tensor * (~mask)
+        if num_mask_params > 0:
+            # find the num_mask_params-th smallest magnitude element
+            kth_values, _ = input_tensor.abs().kthvalue(k=num_mask_params, dim=0, keepdim=True)
+            mask = input_tensor.abs() <= kth_values
+            masked_input_tensor = input_tensor * (~mask)
+        else:
+            masked_input_tensor = input_tensor.clone()
         masked_input_tensor = masked_input_tensor.reshape(original_shape)
     if use_rescale and mask_rate != 1.0:
         masked_input_tensor = torch.div(input=masked_input_tensor, other=1 - mask_rate)

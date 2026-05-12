@@ -26,7 +26,6 @@ import torch
 
 from openai import OpenAI
 from datasets import load_dataset
-from tqdm import tqdm
 from vllm import LLM, SamplingParams
 from transformers import AutoTokenizer
 
