@@ -20,6 +20,7 @@ import argparse
 from openai import OpenAI
 
 from utils import load_jsonl, get_completion
+from prompts.restore import RESTORE_PROMPT
 
 parser = argparse.ArgumentParser(description="Restore annotated spans to exact substrings.")
 parser.add_argument("--chunk", type=int, default=1)
@@ -39,9 +40,6 @@ def parse_result_tags(text):
     matches = re.findall(pattern, text, re.DOTALL)
     return [match[1].strip() for match in matches]
 
-
-with open("prompts/restore.txt", "r", encoding="utf-8") as f:
-    prompt_template = f.read()
 
 ori_data_file = (
     f"{args.data_dir}/{args.source_model_name}/{args.folder_name}/"
@@ -105,7 +103,7 @@ with open(save_data_file, writing_var, encoding="utf-8") as f:
                 for j, x in enumerate(error_list_all)
                 if "No errors" not in x
             ]
-            user_query = prompt_template.format(
+            user_query = RESTORE_PROMPT.format(
                 original_text=raw_answer,
                 extracted_text="\n".join(error_list).strip(),
             )

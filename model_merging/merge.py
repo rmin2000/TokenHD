@@ -49,11 +49,11 @@ def main():
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("--merge_method", type=str, required=True, default="average_merging")
+    arg_parser.add_argument("--merge_method", type=str, default="average_merging")
     arg_parser.add_argument("--output_dir", type=str)
     arg_parser.add_argument('--base_model', type=str, help='base model')
     arg_parser.add_argument("--models_to_merge", type=str, required=True)
-    arg_parser.add_argument("--exclude_param_names_regex", type=str, default=[])
+    arg_parser.add_argument("--exclude_param_names_regex", type=str, default="")
     arg_parser.add_argument("--scaling_coefficient", type=float, default=1.0)
     arg_parser.add_argument("--param_value_mask_rate", type=float, default=0.8)
     arg_parser.add_argument("--use_gpu", action='store_true', default=False)

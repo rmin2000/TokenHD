@@ -1,3 +1,6 @@
+"""Prompt for verifying whether a candidate solution's final answer is correct."""
+
+CORRECTNESS_CHECK_PROMPT = """\
 You are an expert and faithful AI assistant. You will be given a math problem, a correct final answer, and a candidate solution.
 
 ## INPUT
@@ -18,4 +21,4 @@ Candidate Solution:
 
 Please evaluate whether the **final answer** in the Candidate Solution is **mathematically equivalent** to the provided correct answer. If it matches, reply only with "Yes"; if not, reply only with "No".
 
-Do not provide explanations, reasoning, or any other text.
+Do not provide explanations, reasoning, or any other text."""

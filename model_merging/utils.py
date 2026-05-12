@@ -1,11 +1,9 @@
 import re
 import os
-from typing import Dict
 import random
 import numpy as np
 import torch
 import torch.nn as nn
-import transformers
 from transformers import Trainer, TrainerState
 
 
@@ -82,27 +80,3 @@ def get_modules_to_merge(model: nn.Module, include_module_types: list):
         if is_valid_type:
             modules_to_merge[module_name] = module
     return modules_to_merge
-
-
-def smart_tokenizer_and_embedding_resize(
-        special_tokens_dict: Dict,
-        tokenizer: transformers.PreTrainedTokenizer,
-        model: transformers.PreTrainedModel,
-):
-    """Resize tokenizer and embedding.
-
-    Note: This is the unoptimized version that may make your embedding size not be divisible by 64.
-    """
-    assert tokenizer.vocab_size == 32000
-    num_new_tokens = tokenizer.add_special_tokens(special_tokens_dict)
-    if num_new_tokens > 0:
-        model.resize_token_embeddings(tokenizer.vocab_size + num_new_tokens)
-
-        input_embeddings = model.get_input_embeddings().weight.data
-        output_embeddings = model.get_output_embeddings().weight.data
-
-        input_embeddings_avg = input_embeddings[:-num_new_tokens].mean(dim=0, keepdim=True)
-        output_embeddings_avg = output_embeddings[:-num_new_tokens].mean(dim=0, keepdim=True)
-
-        input_embeddings[-num_new_tokens:] = input_embeddings_avg
-        output_embeddings[-num_new_tokens:] = output_embeddings_avg

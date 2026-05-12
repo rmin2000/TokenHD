@@ -1,3 +1,6 @@
+"""Prompt for restoring annotated spans to verbatim substrings of the original text."""
+
+RESTORE_PROMPT = """\
 You are given one original text and multiple extracted text segments that were supposedly extracted from the original text, but may contain slight variations, errors, or modifications.
 1. **Original Text**: A long document or passage
 2. **Extracted Text**: A segment that was supposedly extracted from the original text, but may contain slight variations, errors, or modifications
@@ -37,4 +40,4 @@ Please process the following input:
 
 Original Text: {original_text}
 
-Extracted Text: {extracted_text}
+Extracted Text: {extracted_text}"""

@@ -18,14 +18,26 @@ import torch
 
 model_id = "mr233/TokenHD-1.7B"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForTokenClassification.from_pretrained(model_id)
+model = AutoModelForTokenClassification.from_pretrained(model_id, num_labels=1)
 model.eval()
 
-text = "The capital of France is London."
-inputs = tokenizer(text, return_tensors="pt")
+problem = "What is the capital of France?"
+response = "The capital of France is London."
+
+messages = [
+    {"role": "user", "content": problem},
+    {"role": "assistant", "content": response},
+]
+input_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=False)[:-2]
+input_tensor = torch.tensor(input_ids).unsqueeze(0)
+
 with torch.no_grad():
-    logits = model(**inputs).logits  # shape: (1, seq_len, 1)
-scores = torch.sigmoid(logits).squeeze(-1).squeeze(0)  # per-token hallucination probability
+    logits = model(input_ids=input_tensor).logits  # shape: (1, seq_len, 1)
+
+# scores for response tokens only (last len(response_tokens) positions)
+response_ids = tokenizer.encode(response, add_special_tokens=False)
+scores = torch.sigmoid(logits.squeeze(-1).squeeze(0))[-len(response_ids):]
+# scores[i] is the hallucination probability for the i-th response token
 ```
 
 ---
@@ -206,5 +218,5 @@ python model_merging/merge.py \
 | Argument | Description |
 |---|---|
 | `--merge_method` | `average_merging`, `task_arithmetic`, `ties_merging`, `ties_merging_dare` |
-| `--base_model` | Reference backbone for task-vector-based methods |
+| `--base_model` | Reference backbone for task-vector-based methods (`task_arithmetic`, `ties_merging`, `ties_merging_dare`); not required for `average_merging` |
 | `--models_to_merge` | Comma-separated paths to specialist checkpoints |

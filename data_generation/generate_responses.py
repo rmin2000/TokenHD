@@ -31,6 +31,7 @@ from vllm import LLM, SamplingParams
 from transformers import AutoTokenizer
 
 from utils import load_jsonl, get_completion, extract_answer_from_box
+from prompts.correctness_check import CORRECTNESS_CHECK_PROMPT
 
 parser = argparse.ArgumentParser(description="Generate LLM responses for math/STEM benchmarks.")
 parser.add_argument("--use_openai_key", action="store_true",
@@ -112,9 +113,6 @@ else:
 
 print(f"Chunk {args.chunk}/{args.tot_chunk}: {len(data_list)} problems.")
 
-with open("prompts/correctness_check.txt") as f:
-    correctness_prompt_format = f.read()
-
 save_file = f"{args.data_dir}/{args.model.split('/')[-1]}/{args.folder_name}/chunk_{args.chunk}.jsonl"
 os.makedirs(os.path.dirname(save_file), exist_ok=True)
 
@@ -189,7 +187,7 @@ with open(save_file, writing_var, encoding="utf-8") as f:
                 final_score = 1
             else:
                 tmp_prompt = (
-                    correctness_prompt_format
+                    CORRECTNESS_CHECK_PROMPT
                     .replace("<problem>", problem)
                     .replace("<correct>", gt_answer)
                     .replace("<incorrect>", raw_answer.strip())
