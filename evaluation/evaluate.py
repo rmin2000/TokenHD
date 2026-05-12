@@ -40,6 +40,7 @@ args = parser.parse_args()
 
 label_model_list = [m.strip() for m in args.annotator_models.split(",")]
 label_list_all = data_preprocess(label_model_list, args.policy_model, args.folder_name, args.data_dir)
+assert len(label_list_all) > 0, "No annotation data found."
 
 np.random.seed(2333)
 perm = np.random.permutation(len(label_list_all[0]))
