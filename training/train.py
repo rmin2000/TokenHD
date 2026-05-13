@@ -8,14 +8,27 @@ class imbalance between hallucinated and non-hallucinated tokens.
 
 Key arguments:
     --model_name        HuggingFace model path (e.g. Qwen/Qwen3-1.7B)
-    --data_files        Comma-separated paths to training JSONL files
+    --data_files        Comma-separated local JSONL paths (mutually exclusive with --hf_dataset)
+    --hf_dataset        HuggingFace dataset repo id, e.g. mr233/TokenHD-training-data
+    --hf_data_files     Comma-separated file names within the HF dataset repo (optional)
     --output_dir        Directory to save the trained model
     --weighted_mode     Token weighting strategy: portion | linear | log | none
     --incorrect_ratio   Fraction of incorrect samples to include
     --correct_ratio     Fraction of correct samples (relative to incorrect count)
     --filtering_t       Minimum soft label value for a sample to be included
 
-Example:
+Examples:
+    # From HuggingFace (recommended):
+    torchrun --nproc-per-node 8 training/train.py \
+        --model_name Qwen/Qwen3-1.7B \
+        --hf_dataset mr233/TokenHD-training-data \
+        --hf_data_files tokenhd_math_train.jsonl \
+        --output_dir ckpts/tokenhd-1.7b \
+        --weighted_mode portion \
+        --num_train_epochs 1 \
+        --learning_rate 1e-5
+
+    # From local files:
     torchrun --nproc-per-node 8 training/train.py \
         --model_name Qwen/Qwen3-1.7B \
         --data_files path/to/ensemble.jsonl \
@@ -177,7 +190,9 @@ class TokenLevelSoftLabelTrainer(Trainer):
 class TrainingConfig:
     model_name: str = field(default="Qwen/Qwen3-1.7B")
     block_size: int = field(default=10000)
-    data_files: str = field(default="", metadata={"help": "Comma-separated paths to training JSONL files."})
+    data_files: str = field(default="", metadata={"help": "Comma-separated local paths to training JSONL files."})
+    hf_dataset: str = field(default="", metadata={"help": "HuggingFace dataset repo id, e.g. mr233/TokenHD-training-data."})
+    hf_data_files: str = field(default="", metadata={"help": "Comma-separated file names within the HF dataset (e.g. tokenhd_math_train.jsonl)."})
     num_labels: int = field(default=1)
     weighted_mode: str = field(
         default="portion",
@@ -201,10 +216,16 @@ def train():
     )
 
     dataset_file_list = [p.strip() for p in config.data_files.split(",") if p.strip()]
-    assert dataset_file_list, "No data files specified. Pass --data_files path1.jsonl,path2.jsonl"
 
     keep_columns = ["problem", "raw_answer", "correctness", "token_ids", "token_weights"]
-    raw_dataset = load_dataset("json", data_files=dataset_file_list)
+
+    if config.hf_dataset:
+        assert not dataset_file_list, "--data_files and --hf_dataset are mutually exclusive"
+        hf_files = [f.strip() for f in config.hf_data_files.split(",") if f.strip()] or None
+        raw_dataset = load_dataset(config.hf_dataset, data_files=hf_files)
+    else:
+        assert dataset_file_list, "Specify either --data_files or --hf_dataset"
+        raw_dataset = load_dataset("json", data_files=dataset_file_list)
     raw_dataset = raw_dataset.select_columns([c for c in keep_columns if c in raw_dataset["train"].column_names])
     dataset = raw_dataset["train"].shuffle(seed=2345)
 

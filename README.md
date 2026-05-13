@@ -162,17 +162,29 @@ Output: `data/<policy_model>/<folder_name>/ensemble/`.
 
 ### Stage 5: Train the Detector
 
+The training data is available on HuggingFace — no local preprocessing required.
+
 ```bash
+# Train directly from HuggingFace (math data):
 bash training/train.sh \
     Qwen3-1.7B \
     portion \
     1 \
     1.0 0.02 0.5 \
     ckpts/tokenhd-1.7b \
-    data/gpt-4o-mini/math_train/ensemble/ensemble_weighted.jsonl
+    "--hf_dataset mr233/TokenHD-training-data --hf_data_files tokenhd_math_train.jsonl"
+
+# Or from a local JSONL file:
+bash training/train.sh \
+    Qwen3-1.7B \
+    portion \
+    1 \
+    1.0 0.02 0.5 \
+    ckpts/tokenhd-1.7b \
+    data/tokenhd_math_train.jsonl
 ```
 
-Positional arguments: `<model_size> <weighted_mode> <epochs> <incorrp> <corrp> <filtering_t> <output_dir> <data_files>`
+Positional arguments: `<model_size> <weighted_mode> <epochs> <incorrp> <corrp> <filtering_t> <output_dir> <data_source>`
 
 | Argument | Description |
 |---|---|
@@ -182,6 +194,7 @@ Positional arguments: `<model_size> <weighted_mode> <epochs> <incorrp> <corrp> <
 | `incorrp` | Fraction of incorrect (hallucinated) samples to retain |
 | `corrp` | Size of the correct set as a multiple of the retained incorrect set (e.g. `0.02` keeps 2% as many correct samples as incorrect) |
 | `filtering_t` | A sample is excluded if its maximum soft label value is below this threshold |
+| `data_source` | Local JSONL path, or HF args: `"--hf_dataset mr233/TokenHD-training-data --hf_data_files tokenhd_math_train.jsonl"` |
 
 The script uses `lr=1e-5`, `weight_decay=1e-4`, and `gradient_checkpointing=True` by default. Edit `training/train.sh` to change these.
 
