@@ -7,6 +7,7 @@ Code for **TokenHD**, a pipeline for training token-level hallucination detector
 - **Paper**: [arxiv.org/abs/2605.12384](https://arxiv.org/abs/2605.12384)
 - **Pre-trained Models**: [HuggingFace Collection](https://huggingface.co/collections/mr233/tokenhd-6a0432e8a29a1e2a01e7fd7b)
 - **Training Data**: [mr233/TokenHD-training-data](https://huggingface.co/datasets/mr233/TokenHD-training-data) — 82k math + 42k code samples with token-level soft labels
+- **Evaluation Data**: [mr233/TokenHD-eval-data](https://huggingface.co/datasets/mr233/TokenHD-eval-data) — 8 benchmarks (math + code) with ground-truth hallucination labels
 
 ## Pre-trained Models
 
